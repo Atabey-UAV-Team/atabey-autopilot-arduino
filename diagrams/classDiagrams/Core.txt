@@ -1,0 +1,117 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam linetype ortho
+
+package "atabey::core" {
+
+    class Autopilot {
+        - lastMs : uint32_t
+        - dt : float
+        - roll : float
+        - pitch : float
+        - yaw : float
+
+        - desiredRoll : float
+        - desiredPitch : float
+        - throttle : float
+
+        - controller : IController*
+        - estimator  : IEstimator*
+        - commLink   : ICommLink*
+        - imu        : ISensor*
+        - gps        : ISensor*
+        - actuators  : IActuator*
+
+        + begin() : void
+        + update() : void
+
+        - updateTime() : void
+        - readSensors() : void
+        - estimateState() : void
+        - runControl() : void
+        - sendTelemetry() : void
+        - applyActuators() : void
+    }
+
+    class Scheduler {
+        - lastTickMs : uint32_t
+        + tick() : void
+    }
+
+    class FlightModeManager {
+        - currentMode : FlightMode
+        + setMode(mode : FlightMode) : void
+        + getMode() : FlightMode
+    }
+
+    class FailsafeManager {
+        + check() : void
+        + trigger(reason : FailsafeReason) : void
+    }
+
+    class HealthMonitor {
+        + update() : void
+        + isHealthy() : bool
+    }
+
+    class ParameterStore {
+        + load() : void
+        + save() : void
+        + get(name : const char*) : float
+        + set(name : const char*, value : float) : void
+    }
+
+    enum FlightMode {
+        MANUAL
+        STABILIZED
+        AUTO
+        RTL
+    }
+
+    enum FailsafeReason {
+        RC_LOST
+        GPS_LOST
+        LOW_BATTERY
+        SENSOR_FAILURE
+    }
+
+    interface ISensor {
+        + init() : bool
+        + update() : void
+        + isHealthy() : bool
+    }
+
+    interface IEstimator {
+        + init() : bool
+        + update() : void
+        + getRoll() : float
+        + getPitch() : float
+        + getYaw() : float
+    }
+
+    interface IController {
+        + init() : bool
+        + update(dt : float) : void
+        + setTarget(roll : float, pitch : float, yaw : float) : void
+    }
+
+    interface IActuator {
+        + init() : bool
+        + setAileron(value : float) : void
+        + setElevator(value : float) : void
+        + setRudder(value : float) : void
+        + setThrottle(value : float) : void
+    }
+
+    interface ICommLink {
+        + init() : bool
+        + send(data : const uint8_t*, len : uint16_t) : bool
+        + receive(buf : uint8_t*, maxLen : uint16_t) : int
+    }
+}
+
+
+FlightModeManager --> FlightMode
+FailsafeManager --> FailsafeReason
+@enduml

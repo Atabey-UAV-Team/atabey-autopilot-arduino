@@ -1,0 +1,120 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam linetype ortho
+
+package "atabey::drivers" {
+
+    ' -------- Interfaces --------
+    interface ISensor {
+        + init() : bool
+        + update() : void
+        + isHealthy() : bool
+    }
+
+    interface IActuator {
+        + init() : bool
+        + setAileron(value : float) : void
+        + setElevator(value : float) : void
+        + setRudder(value : float) : void
+        + setThrottle(value : float) : void
+    }
+
+    ' -------- Sensor Drivers --------
+    class ImuDriver {
+        - accel : Vector3
+        - gyro  : Vector3
+        - mag   : Vector3
+        + init() : bool
+        + update() : void
+        + isHealthy() : bool
+        + getAccel() : Vector3
+        + getGyro()  : Vector3
+        + getMag()   : Vector3
+    }
+
+    class GpsDriver {
+        - lat : double
+        - lon : double
+        - alt : float
+        + init() : bool
+        + update() : void
+        + isHealthy() : bool
+        + getLat() : double
+        + getLon() : double
+        + getAlt() : float
+        + hasFix() : bool
+    }
+
+    class BarometerDriver {
+        - pressure : float
+        - altitude : float
+        + init() : bool
+        + update() : void
+        + isHealthy() : bool
+        + getPressure() : float
+        + getAltitude() : float
+    }
+
+    class MagnetometerDriver {
+        - mag : Vector3
+        + init() : bool
+        + update() : void
+        + isHealthy() : bool
+        + getMag() : Vector3
+    }
+
+    class AirspeedSensor {
+        - airspeed : float
+        + init() : bool
+        + update() : void
+        + isHealthy() : bool
+        + getAirspeed() : float
+    }
+
+    ' -------- Actuator Drivers --------
+    class ServoDriver {
+        + init() : bool
+        + setAileron(value : float) : void
+        + setElevator(value : float) : void
+        + setRudder(value : float) : void
+        + setThrottle(value : float) : void
+    }
+
+    class MotorDriver {
+        + init() : bool
+        + setThrottle(value : float) : void
+    }
+
+    ' -------- Other Drivers --------
+    class RcReceiver {
+        + init() : bool
+        + update() : void
+        + isHealthy() : bool
+        + getChannel(ch : int) : float
+        + isSignalLost() : bool
+    }
+
+    class PowerMonitor {
+        - voltage : float
+        - current : float
+        + init() : bool
+        + update() : void
+        + isHealthy() : bool
+        + getVoltage() : float
+        + getCurrent() : float
+    }
+
+}
+
+' -------- Inheritance / Implementation --------
+ImuDriver ..|> ISensor
+GpsDriver ..|> ISensor
+BarometerDriver ..|> ISensor
+MagnetometerDriver ..|> ISensor
+AirspeedSensor ..|> ISensor
+
+ServoDriver ..|> IActuator
+MotorDriver ..|> IActuator
+
+@enduml

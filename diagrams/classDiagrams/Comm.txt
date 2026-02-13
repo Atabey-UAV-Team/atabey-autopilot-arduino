@@ -1,0 +1,66 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam linetype ortho
+
+package "atabey::comm" {
+
+    ' -------- Interfaces --------
+    interface ICommLink {
+        + init() : bool
+        + send(data : const uint8_t*, len : uint16_t) : bool
+        + receive(buf : uint8_t*, maxLen : uint16_t) : int
+        + isConnected() : bool
+    }
+
+    ' -------- Links / Protocols --------
+    class TelemetryLink {
+        - txBuffer : uint8_t[]
+        - rxBuffer : uint8_t[]
+        + init() : bool
+        + send(data : const uint8_t*, len : uint16_t) : bool
+        + receive(buf : uint8_t*, maxLen : uint16_t) : int
+        + isConnected() : bool
+    }
+
+    class MavlinkLink {
+        - sysId : uint8_t
+        - compId : uint8_t
+        + init() : bool
+        + send(data : const uint8_t*, len : uint16_t) : bool
+        + receive(buf : uint8_t*, maxLen : uint16_t) : int
+        + encodeMavlink() : void
+        + decodeMavlink() : void
+        + isConnected() : bool
+    }
+
+    class LoraLink {
+        - rssi : int
+        - snr : float
+        + init() : bool
+        + send(data : const uint8_t*, len : uint16_t) : bool
+        + receive(buf : uint8_t*, maxLen : uint16_t) : int
+        + isConnected() : bool
+        + getRssi() : int
+        + getSnr() : float
+    }
+
+    class GroundStationInterface {
+        + onCommandReceived(cmdId : uint16_t) : void
+        + onParameterSet(name : const char*, value : float) : void
+    }
+
+    class CommandParser {
+        + parse(data : const uint8_t*, len : uint16_t) : void
+    }
+
+    class LogStream {
+        + push(data : const uint8_t*, len : uint16_t) : void
+    }
+}
+
+' -------- Inheritance --------
+TelemetryLink ..|> ICommLink
+MavlinkLink ..|> ICommLink
+LoraLink ..|> ICommLink
+@enduml

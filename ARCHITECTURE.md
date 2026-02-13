@@ -131,12 +131,9 @@ atabey::utils        (opsiyonel)
 
 **Her kütüphane içinde kullanılan ortak veri yapıları ve araçlar**
 
-* `RingBuffer`
 * `Time`
 * `MathUtils`
 * `Vector3f`
-* `LowPassFilter`
-* `Logger`
 
 > Not: `utils` bağımlılıkları tek yönlü olmalı; utils hiçbir modüle bağımlı olmamalıdır.
 

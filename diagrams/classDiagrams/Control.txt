@@ -1,0 +1,78 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam linetype ortho
+
+package "atabey::control" {
+
+    ' -------- Core Control Blocks --------
+    class PID {
+        - kp : float
+        - ki : float
+        - kd : float
+        - integral : float
+        - prevError : float
+        + reset() : void
+        + update(error : float, dt : float) : float
+    }
+
+    ' -------- Controllers --------
+    class RateController {
+        - rollPid  : PID
+        - pitchPid : PID
+        - yawPid   : PID
+        + init() : bool
+        + update(dt : float) : void
+        + setTargetRates(rollRate : float, pitchRate : float, yawRate : float) : void
+        + getAileronCmd() : float
+        + getElevatorCmd() : float
+        + getRudderCmd() : float
+    }
+
+    class AttitudeController {
+        - rollPid  : PID
+        - pitchPid : PID
+        - yawPid   : PID
+        + init() : bool
+        + update(dt : float) : void
+        + setTargetAngles(roll : float, pitch : float, yaw : float) : void
+        + getRollRateTarget() : float
+        + getPitchRateTarget() : float
+        + getYawRateTarget() : float
+    }
+
+    class PositionController {
+        - xPid : PID
+        - yPid : PID
+        - zPid : PID
+        + init() : bool
+        + update(dt : float) : void
+        + setTargetPosition(x : float, y : float, z : float) : void
+        + getRollTarget() : float
+        + getPitchTarget() : float
+        + getThrottleTarget() : float
+    }
+
+    class AltitudeController {
+        - altPid : PID
+        + init() : bool
+        + update(dt : float) : void
+        + setTargetAltitude(alt : float) : void
+        + getThrottleTarget() : float
+    }
+
+    class NavigationController {
+        - navPid : PID
+        + init() : bool
+        + update(dt : float) : void
+        + setTargetWaypoint(lat : double, lon : double, alt : float) : void
+    }
+
+}
+
+AttitudeController --> PID
+RateController --> PID
+PositionController --> PID
+AltitudeController --> PID
+NavigationController --> PID
+@enduml
