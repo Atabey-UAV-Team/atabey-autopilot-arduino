@@ -1,55 +1,116 @@
 #include "Autopilot.h"
 
-// Donanım Driverleri
-#include "../drivers/imu/imu.h"
-#include "../drivers/gps/gps.h"
-#include "../drivers/servo/servo.h"
+// Constructor
+Autopilot::Autopilot()
+    : lastMs(0), dt(0.0f),
+      roll(0), pitch(0), yaw(0),
+      rollRate(0), pitchRate(0), yawRate(0),
+      desiredRoll(0), desiredPitch(0), desiredYaw(0), desiredThrottle(0),
+      aileron(0), elevator(0), rudder(0), throttle(0),
+      imu(nullptr), gps(nullptr),
+      estimator(nullptr), controller(nullptr),
+      actuators(nullptr), commLink(nullptr)
+{}
 
-void Autopilot::begin() {
+// Modüller
+void Autopilot::attachIMU(ISensor* imuSensor) { imu = imuSensor; }
+void Autopilot::attachGPS(ISensor* gpsSensor) { gps = gpsSensor; }
+void Autopilot::attachEstimator(IEstimator* est) {estimator = est; }
+void Autopilot::attachController(IController* ctrl){ controller = ctrl; }
+void Autopilot::attachActuators(IActuator* act) { actuators = act; }
+void Autopilot::attachComm(ICommLink* comm) { commLink = comm; }
 
+// Lifecycle
+bool Autopilot::begin() {
     lastMs = millis();
-    dt = 0.01f;
 
-    roll = pitch = yaw = 0.0f;
-    rollRate = pitchRate = yawRate = 0.0f;
+    bool ok = true;
+    if (imu) ok &= imu->init();
+    if (gps) ok &= gps->init();
+    if (estimator) ok &= estimator->init();
+    if (controller) ok &= controller->init();
+    if (actuators) ok &= actuators->init();
+    if (commLink) ok &= commLink->init();
 
-    desiredRoll = 0.0f;
-    desiredPitch = 0.0f;
-
-    aileron = elevator = rudder = throttle = 0.0f;
-
+    return ok;
 }
 
 void Autopilot::update() {
     updateTime();
-    /* readSensors();
-    estimateAttitude();
-    pidControl();
-    updateActuators*/
+    readSensors();
+    estimateState();
+    runControl();
+    applyActuators();
+    sendTelemetry();
+    checkFailsafe();
 }
 
+// Ana adımlar
 void Autopilot::updateTime() {
-    
-    unsigned long int now = millis();
-    dt = now - lastMs;
+    uint32_t now = millis();
+    dt = (now - lastMs) * 0.001f;
     lastMs = now;
 
+    // İlk çalışmadaki lastMs = 0 durumunda dt = 0 gelme durumunun engellenmesi durumu,
+    // ve uint32_t limiti aşıldığında oluşan overflow sonucu dt negatif gelmesi engellenmek için bu "if" bloğu kullanılmıştır.
     if (dt <= 0.0f || dt > 0.1f) {
-        dt = 0.01f;
+        dt = 0.01f; // 10ms değeri tamamen random
     }
 }
 
-void Autopilot::readSensors() {}
-
-void Autopilot::estimateAttitude() {
-    roll  += rollRate  * dt;
-    pitch += pitchRate * dt;
-    yaw   += yawRate   * dt;
+void Autopilot::readSensors() {
+    if (imu) imu->update();
+    if (gps) gps->update();
 }
 
-void Autopilot::pidControl() {}
+void Autopilot::estimateState() {
+    if (!estimator) return;
 
-void Autopilot::updateActuators() {
-    // Servo kütüphanesi böyle yazılır tahmini
-    // Servos_write(aileron, elevator, rudder, throttle);
+    estimator->update();
+
+    roll  = estimator->getRoll();
+    pitch = estimator->getPitch();
+    yaw   = estimator->getYaw();
+}
+
+void Autopilot::runControl() {
+    if (!controller) return;
+
+    controller->setTarget(desiredRoll, desiredPitch, desiredYaw);
+    controller->update(dt);
+}
+
+void Autopilot::applyActuators() {
+    if (!actuators) return;
+
+    actuators->setAileron(aileron);
+    actuators->setElevator(elevator);
+    actuators->setRudder(rudder);
+    actuators->setThrottle(throttle);
+}
+
+void Autopilot::sendTelemetry() {
+    if (!commLink) return;
+
+    uint8_t buf[12]; // TODO: Telemetri Paketinin byte büyüklüğüne göre düzenlenecek
+    
+    commLink->send(buf, sizeof(buf));
+}
+
+void Autopilot::checkFailsafe() {
+    if (imu && !imu->isHealthy()) {
+        // TODO: FailsafeManager entegre edilecek
+    }
+
+    if (gps && !gps->isHealthy()) {
+        // TODO: RTL mode tetiklenebilir
+    }
+}
+
+// TODO: Hedefler (Kontrol sistemi ile belirlenedek)
+void Autopilot::setTargets(float roll, float pitch, float yaw, float throttle) {
+    desiredRoll     = roll;
+    desiredPitch    = pitch;
+    desiredYaw      = yaw;
+    desiredThrottle = throttle;
 }
