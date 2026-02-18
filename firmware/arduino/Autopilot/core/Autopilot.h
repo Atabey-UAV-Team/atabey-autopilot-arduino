@@ -78,11 +78,11 @@ namespace atabey {
             IActuator* actuators;
             ICommLink* commLink;
 
-            Scheduler*         scheduler;
+            Scheduler* scheduler;
             FlightModeManager* flightModeMgr;
-            FailsafeManager*   failsafeMgr;
-            HealthMonitor*     healthMonitor;
-            ParameterStore*    paramStore;
+            FailsafeManager* failsafeMgr;
+            HealthMonitor* healthMonitor;
+            ParameterStore* paramStore;
 
             // Core Adımlar
             void updateTime();
@@ -117,11 +117,10 @@ namespace atabey {
             void setTargets(float roll, float pitch, float yaw, float throttle);
 
             // Debug / getter fonksiyonları
-            float getRoll()  const { return roll;  }
-            float getPitch() const { return pitch; }
-            float getYaw()   const { return yaw;   }
+            float getRoll() const
+            float getPitch() const
+            float getYaw() const
         };
-
 
     }
 }
