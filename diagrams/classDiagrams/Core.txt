@@ -94,6 +94,10 @@ package "atabey::core" {
         + init() : bool
         + update(dt : float) : void
         + setTarget(roll : float, pitch : float, yaw : float) : void
+        + getAileron() : float
+        + getElevator() : float
+        + getRudder() : float
+        + getThrottle() : float
     }
 
     interface IActuator {
@@ -108,6 +112,7 @@ package "atabey::core" {
         + init() : bool
         + send(data : const uint8_t*, len : uint16_t) : bool
         + receive(buf : uint8_t*, maxLen : uint16_t) : int
+        + isConnected() : bool
     }
 }
 
