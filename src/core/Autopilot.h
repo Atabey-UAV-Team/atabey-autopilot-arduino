@@ -6,29 +6,13 @@
 #include "../estimation/IEstimator.h"
 #include "../control/IController.h"
 #include "../comm/ICommLink.h"
+#include "../utils/MathUtils.h"
 
 #include "Scheduler.h"
 #include "FlightModeManager.h"
 #include "FailsafeManager.h"
 #include "HealthMonitor.h"
 #include "ParameterStore.h"
-
-namespace atabey::drivers {
-    class ISensor;
-    class IActuator;
-}
-
-namespace atabey::estimation {
-    class IEstimator;
-}
-
-namespace atabey::control {
-    class IController;
-}
-
-namespace atabey::comm {
-    class ICommLink;
-}
 
 namespace atabey {
     namespace core {
@@ -44,6 +28,8 @@ namespace atabey {
             // Zaman Yönetimi (Scheduler)
             uint32_t lastMs;
             float dt;
+
+            bool initialized;
 
             // Durum Kestirimi (Estimator output)
             float roll;

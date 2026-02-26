@@ -5,6 +5,7 @@
 #include "../control/IController.h"
 #include "../drivers/actuators/IActuator.h"
 #include "../comm/ICommLink.h"
+#include "../utils/MathUtils.h"
 
 namespace atabey {
     namespace core {
@@ -47,10 +48,12 @@ namespace atabey {
             if (actuators) ok &= actuators->init();
             if (commLink) ok &= commLink->init();
 
+            initialized = ok;
             return ok;
         }
 
         void Autopilot::update() {
+            if (!initialized) return;
             updateTime();
             readSensors();
             estimateState();
@@ -68,9 +71,8 @@ namespace atabey {
 
             // İlk çalışmadaki lastMs = 0 durumunda dt = 0 gelme durumunun engellenmesi durumu,
             // ve uint32_t limiti aşıldığında oluşan overflow sonucu dt negatif gelmesi engellenmek için bu "if" bloğu kullanılmıştır.
-            if (dt <= 0.0f || dt > 0.1f) {
-                dt = 0.01f; // 10ms değeri tamamen random
-            }
+            if (dt <= 0.0f) { dt = 0.01f; }
+            else if (dt > 0.1f) { dt = 0.01f; }
         }
 
         void Autopilot::readSensors() {
@@ -116,7 +118,7 @@ namespace atabey {
         void Autopilot::sendTelemetry() {
             if (!commLink) return;
 
-            uint8_t buf[12]; // TODO: Telemetri Paketinin byte büyüklüğüne göre düzenlenecek
+            uint8_t buf[12] = {}; // TODO: Telemetri Paketinin byte büyüklüğüne göre düzenlenecek
             
             commLink->send(buf, sizeof(buf)); // TODO
         }
