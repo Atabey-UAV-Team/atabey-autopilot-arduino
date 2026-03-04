@@ -5,6 +5,7 @@
 #define AK8963_ADDR 0x0C
 
 #define PWR_MGMT_1 0x6B
+#define GYRO_XOUT_H 0x43
 #define ACCEL_XOUT_H 0x3B
 #define GYRO_CONFIG 0x1B
 #define ACCEL_CONFIG 0x1C
@@ -46,15 +47,15 @@ namespace atabey {
             return true;
         }
 
-        Vec3f ImuSensor::getAccel() {
+        Vec3f ImuSensor::getAccel() const {
             return Vec3f(ax, ay, az);
         }
 
-        Vec3f ImuSensor::getGyro() {
+        Vec3f ImuSensor::getGyro() const {
             return Vec3f(gx, gy, gz);
         }
 
-        Vec3f ImuSensor::getMag() {
+        Vec3f ImuSensor::getMag() const {
             return Vec3f(mx, my, mz); 
         }
         

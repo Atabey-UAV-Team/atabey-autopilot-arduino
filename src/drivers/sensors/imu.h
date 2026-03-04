@@ -24,7 +24,7 @@ namespace atabey {
                 Vec3f getAccel() const;
                 Vec3f getGyro() const;
                 Vec3f getMag() const;
-        }
+        };
     
     }
 }
