@@ -1,7 +1,9 @@
 #include "AttitudeEstimator.h"
 #include <math.h>
 
-#define ALPHA 0.02f
+#define ALPHA 0.98f
+
+using namespace atabey::utils;
 
 namespace atabey {
     namespace estimation {
@@ -9,40 +11,38 @@ namespace atabey {
         AttitudeEstimator::AttitudeEstimator(atabey::drivers::ImuSensor& imuSensor) : imu(&imuSensor) {}
 
         bool AttitudeEstimator::init() {
-            roll = 0, pitch = 0, yaw = 0;
-            pitchAcc = 0, rollAcc = 0;
+            roll = pitch = yaw = 0.0f;
+            pitchAcc = rollAcc = 0.0f;
             return true;
         }
 
         void AttitudeEstimator::update() {
-            imu->update();
-            if (!imu->isHealthy()) return;
+            Vec3f accel = normalize(imu->getAccel()); // Akselometre verilerini normalize ederek kullanıyoruz
+            Vec3f gyro = imu->getGyro();
 
-            atabey::utils::Vec3f accel = imu->getAccel();
-            atabey::utils::Vec3f gyro = imu->getGyro();
+            prevMicros = micros();
+            nowMicros = micros();
 
-            static unsigned long prevMicros = micros();
-            unsigned long nowMicros = micros();
-
-            float dt = (nowMicros - prevMicros) / 1000000.0f; // Saniyeye dönüştürmek için
+            dt = (nowMicros - prevMicros) / 1000000.0f; // Saniyeye dönüştürmek için
             prevMicros = nowMicros;
-            if (dt <= 0.0f) { dt = 0.01f; }
-            else if (dt > 0.1f) { dt = 0.01f; }
 
-            pitchAcc = atan2f(-accel.x, sqrtf(accel.y * accel.y + accel.z * accel.z));
-            rollAcc  = atan2f(accel.y, accel.z);
+            if (dt <= 0.0f) { dt = 0.01f; } // dt'nin sıfır veya negatif gelmesi durumunu engelledik
+            else if (dt > 0.1f) { dt = 0.1f; }
 
-            roll = atabey::utils::lerp(rollAcc, roll + gyro.x * dt, ALPHA);
-            pitch = atabey::utils::lerp(pitchAcc, pitch + gyro.y * dt, ALPHA);
+            pitchAcc = atan2f(-accel.x, sqrtf(accel.y * accel.y + accel.z * accel.z)); // Pitch açısını hesaplamak için akselometre verilerini kullandık
+            rollAcc  = atan2f(accel.y, accel.z); // Roll açısını hesaplamak için akselometre verilerini kullandık
+
+            roll = lerp(rollAcc, roll + gyro.x * dt, ALPHA);
+            pitch = lerp(pitchAcc, pitch + gyro.y * dt, ALPHA);
             yaw   += gyro.z * dt;
 
-            // Açıları -180..180 aralığında tut
-            roll  = atabey::utils::wrapPi(roll);
-            pitch = atabey::utils::wrapPi(pitch);
-            yaw   = atabey::utils::wrapPi(yaw);
+            // Açıları -180..180 aralığında tutar
+            roll  = wrapPi(roll);
+            pitch = wrapPi(pitch);
+            yaw   = wrapPi(yaw);
         }
 
-        atabey::utils::Vec3f AttitudeEstimator::getAttitude() const {
+        Vec3f AttitudeEstimator::getAttitude() const {
             return {roll, pitch, yaw};
         }
 

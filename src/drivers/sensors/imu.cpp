@@ -37,7 +37,7 @@ namespace atabey {
         }
 
         void ImuSensor::update() {
-            uint8_t buf[6];
+            uint8_t buf[14];
 
             // Akselometre
             if (!readBytes(MPU9250_ADDR, ACCEL_XOUT_H, buf, 14)) return;
@@ -47,9 +47,9 @@ namespace atabey {
             az = (int16_t)(buf[4] << 8 | buf[5]) / 16384.0f;
 
             // Jiroskop
-            gx = (int16_t)(buf[8]  << 8 | buf[9])  / 131.0f;
-            gy = (int16_t)(buf[10] << 8 | buf[11]) / 131.0f;
-            gz = (int16_t)(buf[12] << 8 | buf[13]) / 131.0f;
+            gx = deg2rad((int16_t)(buf[8]  << 8 | buf[9])  / 131.0f);
+            gy = deg2rad((int16_t)(buf[10] << 8 | buf[11]) / 131.0f);
+            gz = deg2rad((int16_t)(buf[12] << 8 | buf[13]) / 131.0f);
 
             // Manyetometre
             if (!readBytes(AK8963_ADDR, MAG_XOUT_L, buf, 6)) return;

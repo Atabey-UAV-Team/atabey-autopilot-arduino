@@ -59,7 +59,16 @@ namespace atabey {
                 a.y + (b.y - a.y) * t,
                 a.z + (b.z - a.z) * t
             };
-}
+        }
+
+        inline Vec3f normalize(const Vec3f& v) {
+            float n = sqrtf(v.x*v.x + v.y*v.y + v.z*v.z);
+
+            if(n < 0.000001f)
+                return v;
+
+            return { v.x/n, v.y/n, v.z/n };
+        }
 
         inline float applyDeadzone(float v, float dz) {
             if (fabsf(v) < dz) return 0.0f;

@@ -18,6 +18,11 @@ namespace atabey {
                 float pitchAcc{0};
                 float rollAcc{0};
 
+                float normalized{0};
+                float dt;
+                static unsigned long prevMicros;
+                static unsigned long nowMicros;
+
             public:
                 AttitudeEstimator(atabey::drivers::ImuSensor& imuSensor);
 
