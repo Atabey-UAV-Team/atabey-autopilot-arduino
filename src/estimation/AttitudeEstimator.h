@@ -18,6 +18,16 @@ namespace atabey {
                 float pitchAcc{0};
                 float rollAcc{0};
 
+                float rollBias;
+                float pitchBias;
+
+                float P_roll[2][2];
+                float P_pitch[2][2];
+
+                float Q_angle = 0.001f;
+                float Q_bias  = 0.003f;
+                float R_measure = 0.03f;
+
                 float normalized{0};
                 float dt;
                 unsigned long prevMicros{0};
