@@ -8,8 +8,7 @@ namespace atabey {
                 virtual ~IActuator() = default;
 
                 virtual bool init() = 0;
-
-                virtual void update(float dt) = 0;
+                virtual void setPosition(float solAngle, float sagAngle) = 0;
                 virtual void disarm() = 0;
         
         };

@@ -3,15 +3,17 @@
 #include "Arduino.h"
 #include "IActuator.h"
 
+#define SERVO_MIN -20 // Derece cinsinden minimum servo açısı
+#define SERVO_MAX 20  // Derece cinsinden maksimum servo açısı
+#define PWM_MIN 120 // 490 Hz sinyali pwm pulse olarak kullanmak için yaptık.
+#define PWM_MAX 250
+
 namespace atabey {
     namespace drivers {
 
         template<uint8_t ELEVON_SOL_PIN, uint8_t ELEVON_SAG_PIN>
         class ServoPWM : public atabey::drivers::IActuator {
             private:
-                static constexpr int8_t SERVO_MIN = -20; // Derece cinsinden minimum servo açısı
-                static constexpr int8_t SERVO_MAX = 20;  // Derece cinsinden maksimum servo açısı
-
                 int8_t solAngle = 0; // Sol elevon açısı (derece cinsinden)
                 int8_t sagAngle = 0; // Sağ elevon açısı (derece cinsinden)
                 
@@ -28,16 +30,11 @@ namespace atabey {
                 void setPosition(float solAngle, float sagAngle) {
 
                     // Gelen açıları sınırla ve 0-255 aralığına dönüştür
-                    uint8_t solAci = (constrain(solAngle, SERVO_MIN, SERVO_MAX) - SERVO_MIN) * 255 / (SERVO_MAX - SERVO_MIN);
-                    uint8_t sagAci = (constrain(sagAngle, SERVO_MIN, SERVO_MAX) - SERVO_MIN) * 255 / (SERVO_MAX - SERVO_MIN);
+                    uint8_t solAci = (constrain(solAngle, SERVO_MIN, SERVO_MAX) - SERVO_MIN) * (PWM_MAX - PWM_MIN) / (SERVO_MAX - SERVO_MIN) + PWM_MIN;
+                    uint8_t sagAci = (constrain(sagAngle, SERVO_MIN, SERVO_MAX) - SERVO_MIN) * (PWM_MAX - PWM_MIN) / (SERVO_MAX - SERVO_MIN) + PWM_MIN;
 
                     analogWrite(ELEVON_SOL_PIN, solAci);
                     analogWrite(ELEVON_SAG_PIN, sagAci);
-                }
-
-                void update(float dt) override {
-                    // Bu örnekte update fonksiyonu boş, çünkü setPosition fonksiyonu doğrudan servo pozisyonunu güncelliyor.
-                    // Gerçek bir uygulamada, burada PID kontrolü veya başka bir kontrol algoritması çalıştırabilirsiniz. (ChatGPT)
                 }
 
                 void disarm() {
