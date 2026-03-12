@@ -28,24 +28,14 @@ void loop() {
     imu.update();
     estimator.update();
 
-    Vec3f accel = imu.getAccel();
-    Vec3f gyro  = imu.getGyro();
     Vec3f attitude = estimator.getAttitude();
 
-    Serial.print("ACC ");
-    Serial.print(accel.x); Serial.print(" ");
-    Serial.print(accel.y); Serial.print(" ");
-    Serial.print(accel.z); Serial.print(" | ");
+    Serial.print("ROLL: ");
+    Serial.print(rad2deg(attitude.x), 2);
+    Serial.print("  PITCH: ");
+    Serial.print(rad2deg(attitude.y), 2);
+    Serial.print("  YAW: ");
+    Serial.println(rad2deg(attitude.z), 2);
 
-    Serial.print("GYRO ");
-    Serial.print(gyro.x); Serial.print(" ");
-    Serial.print(gyro.y); Serial.print(" ");
-    Serial.println(gyro.z);
-
-    Serial.print("ATTITUDE ");
-    Serial.print(rad2deg(attitude.x)); Serial.print(" ");
-    Serial.print(rad2deg(attitude.y)); Serial.print(" ");
-    Serial.println(rad2deg(attitude.z));
-
-    delay(50);
+    delay(20);
 }

@@ -23,7 +23,7 @@ atabey::drivers
 atabey::control
 atabey::comm
 atabey::estimation
-atabey::utils        (opsiyonel)
+atabey::utils
 ```
 
 > Not: Namespace yapısı, `src/` klasör yapısı ile birebir eşleşmelidir.
@@ -74,7 +74,6 @@ Bu katman donanıma bağımlıdır. Sensör, aktüatör ve çevre birimlerinin g
 * `ImuDriver`
 * `GpsDriver`
 * `BarometerDriver`
-* `MagnetometerDriver`
 * `AirspeedSensor`
 
 ### Aktüatörler
@@ -83,7 +82,7 @@ Bu katman donanıma bağımlıdır. Sensör, aktüatör ve çevre birimlerinin g
 * `ServoDriver`
 * `MotorDriver`
 
-### Diğer Donanım Bileşenleri
+### Diğer Donanım Bileşenleri (TODO)
 
 * `FlashStorage`
 * `RcReceiver`
@@ -101,7 +100,7 @@ Bu katman, uçuş kontrolünün matematiksel ve algoritmik kısmını içerir.
 
 * `IController`
 * `PID`
-* `RateController`
+* `RateController` 
 * `AttitudeController`
 * `PositionController`
 * `AltitudeController`
@@ -123,7 +122,6 @@ Sensör verilerinden uçağın gerçek durumunu tahmin eden katmandır.
 * `IEstimator`
 * `AttitudeEstimator`
 * `PositionEstimator`
-* `EkfEstimator`
 
 > Not: Bu katman yalnızca `drivers::ISensor` arayüzlerini kullanır.
 > Sensörün hangi marka/model olduğu estimation katmanını ilgilendirmez.

@@ -61,6 +61,10 @@ namespace atabey {
             };
         }
 
+        inline float normalize(float x, float min, float max) {
+            return (x - min) / (max - min);
+        }
+
         inline Vec3f normalize(const Vec3f& v) {
             float n = sqrtf(v.x*v.x + v.y*v.y + v.z*v.z);
 
