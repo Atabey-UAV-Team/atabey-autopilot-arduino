@@ -6,15 +6,15 @@ addpath('simulinkModelleri')
 simTime = 60;
 
 % TRIM
-x0 = [0.1;
-    0;
-    0;
-    0;
-    0;
-    0;
-    0;
-    0;
-    0;];
+x0 = [15;   % u
+    0;      % v
+    0;      % w
+    0;      % p
+    0;      % q
+    0;      % r
+    0;      % phi
+    0;      % theta
+    0;];    % psi
 
 u = [25*pi/180;
     0;
@@ -39,22 +39,22 @@ clc
 endResults = sim("ATABEY_sistem_modeli.slx")
 
 %% PLOT
-clc, close all
+clc; close all;
+
 X_ts = endResults.SimulatedOutputs;
 U_ts = endResults.SimulatedInputs;
 time = X_ts.Time;
 
 % 3D timeseries to 2D numeric arrays (time × states/inputs)
-X_data = permute(X_ts.Data, [3 1 2]);
-X_data = squeeze(X_data);  
+X_data = squeeze(permute(X_ts.Data, [3 1 2]));
 U_data = reshape(U_ts.Data, U_ts.Length, []);
-U_data = U_data(:,1:4);
+U_data = U_data(:, 1:4);
 
+% --- Kontrol Girdileri ---
 figure('Name','Kontrol Girdileri','NumberTitle','off')
-numInputs = size(U_data,2);
-
+numInputs = size(U_data, 2);
 for i = 1:numInputs
-    subplot(numInputs,1,i)
+    subplot(numInputs, 1, i)
     plot(time, U_data(:,i), 'LineWidth', 1.5)
     hold on
     yline(eval(['u' num2str(i) 'min']), '--r', 'Min')
@@ -66,11 +66,13 @@ for i = 1:numInputs
     legend('Girdi','Min Limit','Max Limit')
 end
 
+% --- Sistem Durumları (3×3) ---
 figure('Name','Sistem Durumları','NumberTitle','off')
-numStates = size(X_data,2);
-
+numStates = size(X_data, 2);   % should be 9
+nRows = 3;
+nCols = 3;
 for i = 1:numStates
-    subplot(numStates,1,i)
+    subplot(nRows, nCols, i)
     plot(time, X_data(:,i), 'LineWidth', 1.5)
     grid on
     xlabel('Simülasyon Zamanı [s]')
